@@ -1,3 +1,13 @@
 {
-  "extends": "next/core-web-vitals"
+	"extends": [
+		"plugin:sonarjs/recommended",
+		"plugin:unicorn/recommended",
+		"plugin:security/recommended",
+		"next",
+		"next/core-web-vitals"
+	],
+	"rules": {
+		"unicorn/filename-case": "off",
+		"unicorn/prefer-module": "off"
+	}
 }
