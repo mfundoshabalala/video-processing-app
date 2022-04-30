@@ -1,54 +1,82 @@
 // package import(s)
-import { useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 // component import(s)
+import Form from './Form';
 import Input from './Input';
 import Button from './Button';
 import Header from './Header';
 import FlexBox from './FlexBox';
 import Container from './Container';
+import { AuthContext } from 'hooks/useAuth';
+// hooks import(s)
+// import { useAuth } from 'hooks/useAuth';
 
 const ProtectedPage: ChildrenInterface = ({ children }) => {
-	const isLoggedIn = false;
+	const auth = useContext(AuthContext);
 	const [appId, setAppId] = useState('');
 	const [appSecret, setAppSecret] = useState('');
+	const isLoggedIn = auth?.token;
 
-	function handleInputChange(state: 'id' | 'secret') {
+	const handleInputChange = useCallback((state: 'id' | 'secret') => {
 		return (event: any) => {
 			if (state === 'id') {
-				return setAppId(event?.target.value);
+				setAppId(event?.target.value);
 			}
 
 			if (state === 'secret') {
-				return setAppSecret(event?.target.value);
+				setAppSecret(event?.target.value);
 			}
 		};
-	}
+	}, []);
+
+	const loginToSymbl = async () => {
+		const response = await fetch('https://api.symbl.ai/oauth2/token:generate', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			mode: 'cors',
+			body: JSON.stringify({
+				type: 'application',
+				appId,
+				appSecret,
+			}),
+		});
+		const json = await response.json();
+		auth?.setToken(json.accessToken);
+		console.log(auth?.token);
+	};
+
+	const handleSubmit = () => {
+		loginToSymbl();
+	};
 
 	return (
 		<>
 			<Header />
 			{!isLoggedIn ? (
 				<Container>
-					<FlexBox className="max-w-md mx-auto">
-						<h1 className="text-center text-3xl font-bold">Login Page</h1>
-						<Input
-							id="appId"
-							type="text"
-							name="appId"
-							value={appId}
-							placeholder="App Id"
-							onChange={handleInputChange('id')}
-						/>
-						<Input
-							id="appSecret"
-							type="password"
-							name="appSecret"
-							value={appSecret}
-							placeholder="App Secret"
-							onChange={handleInputChange('secret')}
-						/>
-						<Button type="submit" name="Login" color="bg-slate-900 text-white" />
-					</FlexBox>
+					<Form>
+						<FlexBox className="max-w-md mx-auto flex-col">
+							<Input
+								id="appId"
+								type="text"
+								name="appId"
+								value={appId}
+								placeholder="App Id"
+								onChange={handleInputChange('id')}
+							/>
+							<Input
+								id="appSecret"
+								type="text"
+								name="appSecret"
+								value={appSecret}
+								placeholder="App Secret"
+								onChange={handleInputChange('secret')}
+							/>
+							<Button name="Login" color="bg-slate-900 text-white" onClick={handleSubmit} />
+						</FlexBox>
+					</Form>
 				</Container>
 			) : (
 				children
