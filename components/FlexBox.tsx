@@ -4,7 +4,7 @@ type FlexBoxInterface = React.FunctionComponent<{
 }>;
 
 const FlexBox: FlexBoxInterface = ({ children, className }) => {
-	return <div className={`flex flex-col gap-4 ${className}`}>{children}</div>;
+	return <div className={`flex gap-4 ${className}`}>{children}</div>;
 };
 
 export default FlexBox;
